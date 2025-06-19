@@ -10,6 +10,7 @@
       />
       <button class="search-button" @click="onSearch">
         <i class="fa fa-search"></i>
+      <!-- 🔍 -->
       </button>
     </div>
   </div>
@@ -242,7 +243,7 @@ const zoomToAllTempLayers = () => {
   console.log("Combined outer extent before buffering:", outerExtent);
 
   if (outerExtent) {
-    const buffer = 200000; // Increase buffer size if necessary
+    const buffer = 200; // Increase buffer size if necessary
     const minX = outerExtent[0] - buffer;
     const minY = outerExtent[1] - buffer;
     const maxX = outerExtent[2] + buffer;
@@ -284,9 +285,11 @@ onBeforeUnmount(() => {
 .search-wrapper {
   display: flex;
   align-items: center;
+  width: 100%;
 }
 .search-box {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 5px 10px;
   border: 0px solid #ddd;
   border-radius: 25px 0 0 25px;
@@ -296,8 +299,11 @@ onBeforeUnmount(() => {
   transition: box-shadow 0.3s ease;
 }
 .search-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 5px 10px;
-  border: 0px solid #ddd;
+  border: 0px;
   border-left: none;
   border-radius: 0 25px 25px 0;
   background-color: #f0f0f0;

@@ -41,7 +41,7 @@ import { TileWMS } from 'ol/source.js';
 import MousePosition from './MousePosition.vue';
 import ZoomButton from './ZoomButton.vue';
 import HomeButton from './HomeButton.vue';
-import FeatureInfo from './FeatureInnfo3.vue';
+import FeatureInfo from './FeatureInfo.vue';
 import LayerList from './LayerList.vue';
 import BasemapList from './BasemapList.vue';
 import SearchFeature from './SearchFeature.vue';
@@ -108,7 +108,7 @@ onMounted(async () => {
     aspect-ratio: 1 / 1;
     right: 1vw;
     bottom: 1vh;
-    z-index: 1000;
+    z-index: 998;
     position: absolute;
     display: flex;
     justify-content: center;

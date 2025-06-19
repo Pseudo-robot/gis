@@ -6,7 +6,16 @@ const auth = require('../middleware/auth');
 // Whitelist untuk keamanan
 const allowedSchemas = ['gis', 'public'];
 const allowedTables = ['bangunan', 'jalan', 'kecamatan'];
-const allowedPublicTables = ['Apartemen', 'Rusun', 'CIP_POINT', 'CIP_LINE']; // yang boleh diakses publik
+const allowedPublicTables = ['Apartemen','Aset_drCitata', 'RUSUNAWA', 'Rusunami', 'CIP_POINT', 'CIP_LINE','rwkumuh', 'RTLH', 'admin_jkt', 'htm', 'RPTRA', 'v_cip']; // yang boleh diakses publik
+const publicTableAliases = {
+  'apartemen': 'Apartemen',
+  'rusun': 'Rusun',
+  'cip-point': 'CIP_POINT',
+  'cip-line': 'CIP_LINE',
+  'rw-kumuh': 'RW KUMUH',
+  'rtlh': 'RTLH',
+  'batas-rw-jakut': 'Batas Admin (RW)_Kota Adm. Jakarta Utara'
+};
 
 // Fungsi query
 async function getGeoJSON(schema, table) {
@@ -30,6 +39,7 @@ async function getGeoJSON(schema, table) {
 // PROTECTED: butuh token
 router.get('/geojson/:schema/:table', auth, async (req, res) => {
   const { schema, table } = req.params;
+  console.log('[REQUEST]', schema, table);
 
   if (!allowedSchemas.includes(schema) || !allowedTables.includes(table)) {
     return res.status(400).json({ error: 'Invalid schema or table' });

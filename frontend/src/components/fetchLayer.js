@@ -3,20 +3,22 @@ import { OSM, XYZ, Vector as VectorSource } from 'ol/source';
 import TileWMS from 'ol/source/TileWMS';
 import { GeoJSON } from 'ol/format';
 import { Style, Fill, Stroke, Circle as CircleStyle } from 'ol/style';
-
-// function getRandomColor() {
-//   const letters = '0123456789ABCDEF';
-//   let color = '#';
-//   for (let i = 0; i < 6; i++) color += letters[Math.floor(Math.random() * 16)];
-//   return color;
-// }
+import { A } from 'ol/renderer/webgl/FlowLayer';
 
 // Daftar layer yang tersedia (atau bisa kamu fetch dari server nanti)
 const layerDefinitions = [
   { name: 'Apartemen', title: 'Apartemen' },
-  { name: 'Rusun', title: 'Rusunawa' },
-  { name: 'CIP_Line', title: 'Implementasi Berupa Garis' },
-  { name: 'CIP_Point', title: 'Implementasi Berupa Titik' }
+  { name: 'RUSUNAWA', title: 'Rusunawa' },
+  { name: 'Rusunami', title: 'Rusunami' }, // Alias untuk RUSUNAWA
+  { name: 'htm', title: 'Hunian Terjangkau Milik' },
+  { name: 'RPTRA', title: 'RPTRA' },
+  // { name: 'CIP_POINT', title: 'Implementasi Berupa Titik' }, 
+  // { name: 'CIP_LINE', title: 'Implementasi Berupa Garis' },
+  { name: 'v_cip', title: 'Collaborative Implementation Program' }, // Alias untuk CIP_POINT dan CIP_LINE
+  { name: 'rwkumuh', title: 'RW Kumuh' },
+  // { name: 'RTLH', title: 'RTLH' },
+  { name: 'Aset_drCitata', title: 'Aset DPRKP Jakarta' },
+  // { name: 'admin_jkt', title: 'Administrasi Jakarta' } // Tambahkan layer HTM
 ];
 
 // Layer group untuk base dan overlay
@@ -69,9 +71,17 @@ const apiBase = import.meta.env.VITE_API_BASE;
 
 const colorMap = {
   Apartemen: '#1f77b4',
-  Rusun: '#ff7f0e',
-  CIP_Line: '#2ca02c',
-  CIP_Point: '#d62728'
+  RUSUNAWA: '#ff7f0e',
+  Rusunami: '#bcbd22',
+  CIP_LINE: '#2ca02c',
+  CIP_POINT: '#d62728',
+  v_cip: '#2ca02c',
+  admin_jkt : '#9467bd',
+  rwkumuh : '#8c564b',
+  RPTRA: '#e377c2',
+  Aset_drCitata: '#7f7f7f',
+  // RTLH: '#e377c2',
+  htm: '#7f7f7f'
 };
 
 const fetchLayer = async () => {

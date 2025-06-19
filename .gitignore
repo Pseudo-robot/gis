@@ -37,5 +37,7 @@ Thumbs.db
 /frontend/node_modules/
 /frontend/.env
 /frontend/dist/
+/frontend/src/components/SearchFeature Copy.vue
+/frontend/src/test/
 
 .env
