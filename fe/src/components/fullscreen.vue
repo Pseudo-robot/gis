@@ -109,8 +109,8 @@ export default {
 <style scoped>
 .fullscreen-toggle {
   position: absolute;
-  top: 100px;
-  right: 100px;
+  top: 105px;
+  right: 120px;
   z-index: 1000;
   background: white;
   border: 2px solid rgba(0, 0, 0, 0.2);
