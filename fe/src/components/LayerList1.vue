@@ -123,21 +123,29 @@ import { ref } from 'vue'
 // Categories and layers data
 const categories = [
   {
-    id: 'kugi',
-    name: 'Kategori KUGI',
+    id: 'POINT',
+    name: 'CIP POINT',
     items: [
-      { id: 'kugi-1', name: 'Batas Wilayah', color: '#4CAF50' },
-      { id: 'kugi-2', name: 'Data Pertanahan', color: '#2196F3' },
-      { id: 'kugi-3', name: 'Dataset Khusus', color: '#FF5722' }
+      { id: 'Point1', name: 'Gapura', color: '#4CAF50' },
+      { id: 'Point2', name: 'Vertikal Garden', color: '#2196F3' },
+      { id: 'Point3', name: 'Speedbump', color: '#FF5722' }
     ]
   },
   {
-    id: 'cip',
-    name: 'CIP',
+    id: 'LINE',
+    name: 'CIP LINE',
     items: [
-      { id: 'cip-1', name: 'Gapura', color: '#9C27B0' },
-      { id: 'cip-2', name: 'Tugu', color: '#607D8B' },
-      { id: 'cip-3', name: 'Jalan', color: '#795548' }
+      { id: 'Line1', name: 'Jalan', color: '#9C27B0' },
+      { id: 'Line2', name: 'Saluran', color: '#607D8B' },
+      { id: 'Line3', name: 'Pagar Pengaman', color: '#795548' }
+    ]
+  },
+  {
+    id: 'DATA',
+    name: 'DATA LAINNYA',
+    items: [
+      { id: 'Data1', name: 'RW Kumuh', color: '#6C24B0' },
+      { id: 'Data2', name: 'RPTRA', color: '#707D9B' }
     ]
   }
 ]
