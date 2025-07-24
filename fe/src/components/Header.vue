@@ -3,7 +3,7 @@
     <!-- Kiri: Logo + Judul -->
     <div class="header-left">
       <button @click="navigate('/')" class="logo-button">
-        <img src="/rumahjakarta.svg" class="logo-image" />
+        <img src="/SIgap-07.svg" class="logo-image" />
       </button>
       <span class="title-text">SIGAP Kumuh</span>
     </div>
