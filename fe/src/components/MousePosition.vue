@@ -41,7 +41,7 @@ onMounted(() => {
     padding: 5px;
     background-color: rgba(225, 225, 225, 0.6);
     font-family: inherit;
-    font-size: 12px;
+    font-size: 16px;
     color: black;
 }
 </style>

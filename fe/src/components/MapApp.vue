@@ -60,7 +60,7 @@ import HomeButton from './HomeButton.vue';
 import FullscreenToggle from './fullscreen.vue';
 // import pdf from './pdf.vue';
 import FeatureInfo from './FeatureInfo.vue';
-import LayerList from './LayerList.vue';
+import LayerList from './LayerList1.vue';
 import BasemapList from './BasemapList.vue';
 import SearchFeature from './SearchFeature.vue';
 import Geolocation from './geolocation.vue';
@@ -126,7 +126,7 @@ onMounted(async () => {
     max-height: 55px;
     aspect-ratio: 1 / 1;
     right: 1vw;
-    bottom: 1vh;
+    bottom: 2vh;
     z-index: 998;
     position: absolute;
     display: flex;
@@ -138,8 +138,8 @@ onMounted(async () => {
 
 .btn-basemap img {
     border: 2px solid white;
-    width: 50px;               /* Keep the image dimensions */
-    height: 50px;
+    width: 80px;               /* Keep the image dimensions */
+    height: 80px;
     border-radius: 10px;
 }
 
@@ -151,12 +151,12 @@ onMounted(async () => {
 .btn.logo,
 .btn.logo:active:focus {
   background-color: white;
-  margin-left: 0.5vw;
+  margin-left: 10px;
   width: 10vw;
   height: 10vw;
-  max-width: 40px;
-  max-height: 40px;
-  border-radius: 50%;
+  max-width: 50px;
+  max-height: 50px;
+  border-radius: 8px;
   border: 2px solid transparent;
   display: flex;
   justify-content: center;
@@ -172,14 +172,14 @@ onMounted(async () => {
 
 .icon {
   height: 4vw;
-  max-height: 20px;
+  max-height: 30px;
   width: auto;
 }
 
 .tools {
     position: absolute;
     z-index: 1;
-    top: 150px;
+    top: 160px;
     left: 0px;
 }
 
@@ -199,10 +199,7 @@ onMounted(async () => {
     left: 2vw;
   }
 
-  :deep(.ol-zoom-in),
-  :deep(.ol-zoom-out) {
-    font-size: 1rem;
-  }
+  
 }
 
 @media (max-width: 480px) {

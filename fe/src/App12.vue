@@ -1,9 +1,9 @@
 <template>
   <div class='header-container'>
     <button id="logo-perumahan" @click="navigate('/')" class="btn rounded-circle logo" title="SIGAP Kumuh">
-      <img src="/rumahjakarta.svg" class="icon" alt="Logo"></img>
+      <img src="/Sigap-07.svg" class="icon" alt="Logo"></img>
     </button>
-    <!-- <img src="/rumahjakarta.svg" alt="Rumah Jakarta" class="title-container title-image" /> -->
+    <!-- <img src="/Sigap-07.svg" alt="Rumah Jakarta" class="title-container title-image" /> -->
     <span class='title-container'>SIGAP Kumuh</span>
   </div>
   <div id="app">
