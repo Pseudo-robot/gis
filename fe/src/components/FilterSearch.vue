@@ -159,7 +159,7 @@ const applyFilters = () => {
   margin-top: 165px;
   position: absolute;
   right: 0;
-  z-index: 10000;
+  z-index: 1000;
   margin-right: 30px;
 
   button {
@@ -176,7 +176,7 @@ const applyFilters = () => {
   background: white;
   position: absolute;
   right: 0;
-  z-index: 10000;
+  z-index: 100;
   margin-right: 30px;
 }
 

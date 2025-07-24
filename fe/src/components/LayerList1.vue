@@ -1,5 +1,11 @@
 <template>
-  <div class="layer-manager">
+  <div class="tools1">
+    <button @click="toggleLayerList" id="btn-layer-list" class="btn rounded-circle logo" title="Daftar Data">
+      <img v-if="!isLayerListVisible" :src="visibleIcon" alt="Show Layer List" class="icon"/>
+      <i v-else class="fas fa-times icon-close"></i>
+    </button>
+  </div>
+  <div class="layer-manager" v-if="isLayerListVisible">
     <!-- Main Panel -->
     <div class="main-panel">
       <h2>Katalog Layer</h2>
@@ -118,9 +124,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import layerGroupIcon from '../assets/layers-group.svg' // Pastikan path benar
 
-// Categories and layers data
+// State
+const isLayerListVisible = ref(false)
+const activeLayers = ref([])
+const selectedLayers = ref([])
+const expandedCategories = ref({})
+const showLayerDialog = ref(false)
+const showConfirmDialog = ref(false)
+const visibleIcon = layerGroupIcon
+
+// Kategori dan item layer
 const categories = [
   {
     id: 'POINT',
@@ -150,19 +166,17 @@ const categories = [
   }
 ]
 
-// State
-const activeLayers = ref([])
-const selectedLayers = ref([])
-const expandedCategories = ref({})
-const showLayerDialog = ref(false)
-const showConfirmDialog = ref(false)
-
-// Initialize expanded categories
+// Expand semua kategori saat inisialisasi
 categories.forEach(cat => {
   expandedCategories.value[cat.id] = true
 })
 
-// Methods
+// Toggle visibility daftar layer
+const toggleLayerList = () => {
+  isLayerListVisible.value = !isLayerListVisible.value
+}
+
+// Buka dialog tambah layer
 const showAddLayerDialog = () => {
   selectedLayers.value = activeLayers.value.map(layer => layer.id)
   showLayerDialog.value = true
@@ -185,24 +199,31 @@ const toggleLayerSelection = (item) => {
   }
 }
 
-const isSelected = (id) => {
-  return selectedLayers.value.includes(id)
-}
+const isSelected = (id) => selectedLayers.value.includes(id)
 
 const addSelectedLayers = () => {
-  // Add new layers that aren't already active
   categories.forEach(category => {
     category.items.forEach(item => {
-      if (selectedLayers.value.includes(item.id) && 
+      if (selectedLayers.value.includes(item.id) &&
           !activeLayers.value.some(l => l.id === item.id)) {
-        activeLayers.value.push({
-          ...item,
-          visible: true
-        })
+        activeLayers.value.push({ ...item, visible: true })
       }
     })
   })
-  
+
+  // Sort berdasarkan urutan kategori
+  activeLayers.value.sort((a, b) => {
+    const getOrder = (id) => {
+      for (const category of categories) {
+        for (let i = 0; i < category.items.length; i++) {
+          if (category.items[i].id === id) return i + categories.indexOf(category) * 100
+        }
+      }
+      return 9999
+    }
+    return getOrder(a.id) - getOrder(b.id)
+  })
+
   closeDialog()
 }
 
@@ -224,6 +245,17 @@ const deleteAllLayers = () => {
   activeLayers.value = []
   showConfirmDialog.value = false
 }
+
+// OPTIONAL: integrasi dengan OpenLayers bisa ditambahkan di watch ini
+watch(
+  activeLayers,
+  (layers) => {
+    layers.forEach(layer => {
+      // Integrasi OL: show/hide based on layer.visible
+    })
+  },
+  { deep: true }
+)
 </script>
 
 <style scoped>
@@ -591,5 +623,70 @@ input:checked + .slider:before {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+.btn.logo,
+.btn.logo:active:focus {
+  background-color: white;
+  margin-left: 10px;
+  width: 10vw;
+  height: 10vw;
+  max-width: 50px;
+  max-height: 50px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+}
+
+.btn.logo:hover {
+  background-color: white;
+  border-color: slateblue;
+  transition: all 500ms;
+}
+
+.icon {
+  height: 4vw;
+  max-height: 30px;
+  width: auto;
+}
+
+.tools1 {
+    position: absolute;
+    z-index: 1;
+    top: 220px;
+    left: 0px;
+}
+
+/* Responsif tambahan untuk layar kecil */
+@media (max-width: 768px) {
+  .btn.logo {
+    width: 12vw;
+    height: 12vw;
+  }
+
+  .icon {
+    height: 5vw;
+  }
+
+  .tools1 {
+    top: 22vh;
+    left: 2vw;
+  }
+
+  
+}
+
+@media (max-width: 480px) {
+  .btn.logo {
+    width: 14vw;
+    height: 14vw;
+  }
+
+  .icon {
+    height: 6vw;
+  }
 }
 </style>

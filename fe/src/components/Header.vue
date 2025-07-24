@@ -1,9 +1,13 @@
+<script setup>
+const navigate = (url) => location.href = url;
+</script>
+
 <template>
   <div class="header-container">
     <!-- Kiri: Logo + Judul -->
     <div class="header-left">
       <button @click="navigate('/')" class="logo-button">
-        <img src="/SIgap-07.svg" class="logo-image" />
+        <img src="/Sigap07.svg" class="logo-image" />
       </button>
       <span class="title-text">SIGAP Kumuh</span>
     </div>
@@ -15,10 +19,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-const navigate = (url) => location.href = url;
-</script>
 
 <style scoped>
 .header-container {

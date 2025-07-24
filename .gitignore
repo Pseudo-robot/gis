@@ -41,3 +41,4 @@ Thumbs.db
 /frontend/src/test/
 
 .env
+ecosystem.config.js

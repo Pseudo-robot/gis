@@ -31,7 +31,7 @@ onMounted(() => {
   position: absolute;
   top: 100px;         /* ubah sesuai kebutuhan */
   right: 60px;
-  z-index: 9999;
+  z-index: 1000;
   pointer-events: auto;
 }
 

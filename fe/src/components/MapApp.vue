@@ -17,6 +17,7 @@
         <HomeButton v-if="mapInstance" :map="mapInstance" />
         <FeatureInfo v-if="mapInstance && overlayGroups" :map="mapInstance" :overlaygroup="overlayGroups" />
         <LayerList v-if="mapInstance && overlayGroups && isLayerListVisible" :map="mapInstance" :overlaygroup="overlayGroups" :layers="vectorLayers" />
+        <LayerList1 v-if="mapInstance && overlayGroups && isLayerListVisible" :map="mapInstance" :overlaygroup="overlayGroups" :layers="vectorLayers" />
         <BasemapList v-if="mapInstance && overlayGroups && isBasemapListVisible"
                      :map="mapInstance"
                      :overlaygroup="overlayGroups"
@@ -61,7 +62,8 @@ import HomeButton from './HomeButton.vue';
 import FullscreenToggle from './fullscreen.vue';
 // import pdf from './pdf.vue';
 import FeatureInfo from './FeatureInfo.vue';
-import LayerList from './LayerList1.vue';
+import LayerList from './LayerList.vue';
+import LayerList1 from './LayerList1.vue';
 import BasemapList from './BasemapList.vue';
 import SearchFeature from './SearchFeature.vue';
 import Geolocation from './geolocation.vue';
