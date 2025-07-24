@@ -283,8 +283,8 @@ defineExpose({
 <style scoped>
 .geolocation-button {
   position: fixed; /* ganti dari absolute ke fixed */
-  top: 100px;
-  right: 40px;
+  top: 105px;
+  right: 60px;
 
   width: 50px;
   height: 50px;

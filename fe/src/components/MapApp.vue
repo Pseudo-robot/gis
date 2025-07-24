@@ -25,6 +25,7 @@
                      @close="isBasemapListVisible = false"/>
         <SearchFeature v-if="mapInstance && overlayGroups" :map="mapInstance" :overlaygroup="overlayGroups" :layers="vectorLayers" />
         <FullscreenToggle v-if="mapInstance" />
+        <FilterSearch v-if="mapInstance" :map="mapInstance" />
         <!-- <pdf v-if="mapInstance" :mapContainerId="'map'" :fileName="'map-export.pdf'" :pdfTitle="'Map Export'" /> -->
         <Header v-if="mapInstance" />
         <geolocation v-if="mapInstance"
@@ -69,6 +70,7 @@ import { fetchLayer } from './fetchLayer.js'
 
 import layerGroupIcon from '../assets/layers-group.svg';
 import defaultBasemap from '../assets/basemap0.png';
+import FilterSearch from './FilterSearch.vue';
 // import Sidebar from './Sidebar.vue';
 
 const mapInstance = ref(null);
