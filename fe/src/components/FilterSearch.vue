@@ -176,7 +176,7 @@ const applyFilters = () => {
   background: white;
   position: absolute;
   right: 0;
-  z-index: 100;
+  z-index: 1000;
   margin-right: 30px;
 }
 
