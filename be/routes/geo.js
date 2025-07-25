@@ -30,6 +30,8 @@ const allowedPublicTables = {
   'cippju': 'CIP_Penerangan_Jalan_Umum',
   'cippj': 'CIP_Penghijauan',
   'cipsl': 'CIP_Sarpras_Lainnya',
+  'caplm': 'CAP_Line_Menteng',
+  'cappt': 'CAP_Point_Menteng',
 };
 
 // 🌐 CORS Only For Frontend

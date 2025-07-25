@@ -28,7 +28,9 @@ const layerDefinitions = [
   { name: 'cippkdkk', title: 'Pendukung Keamanan dan Keselamatan Kawasan' },
   { name: 'cippju', title: 'Penerangan Jalan Umum' },
   { name: 'cippj', title: 'Penghijauan' },
-  { name: 'cipsl', title: 'Sarpras Lainnya' }
+  { name: 'cipsl', title: 'Sarpras Lainnya' },
+  { name: 'caplm', title: 'CAP Line Menteng' },
+  { name: 'cappt', title: 'CAP Point Menteng' }
 ];
 
 // Layer group untuk base dan overlay
@@ -102,6 +104,8 @@ const colorMap = {
   cippju: '#e377c2',
   cippj: '#7f7f7f',
   cipsl: '#17becf',
+  caplm: '#1f77b4',
+  cappt: '#ff7f0e'
 };
 
 const fetchLayer = async () => {
