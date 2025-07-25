@@ -19,7 +19,16 @@ const layerDefinitions = [
   // { name: 'RTLH', title: 'RTLH' },
   { name: 'aset', title: 'Aset DPRKP Jakarta' },
   // { name: 'admin_jkt', title: 'Administrasi Jakarta' } // Tambahkan layer HTM
-  { name: 'CIP_APAR', title: 'Hunian Terjangkau Milik' },
+  { name: 'cippsu', title: 'Bangunan PSU' },
+  { name: 'cipdll', title: 'Drainase Lingkungan (Garis)' },
+  { name: 'cipdlp', title: 'Drainase Lingkungan (Titik)' },
+  { name: 'cipjl', title: 'Jalan Lingkungan' },
+  { name: 'cippk', title: 'Pencegahan Kebakaran' },
+  { name: 'cippd', title: 'Pendukung Dekorasi' },
+  { name: 'cippkdkk', title: 'Pendukung Keamanan dan Keselamatan Kawasan' },
+  { name: 'cippju', title: 'Penerangan Jalan Umum' },
+  { name: 'cippj', title: 'Penghijauan' },
+  { name: 'cipsl', title: 'Sarpras Lainnya' }
 ];
 
 // Layer group untuk base dan overlay
@@ -82,7 +91,17 @@ const colorMap = {
   rptra: '#e377c2',
   aset: '#7f7f7f',
   // RTLH: '#e377c2',
-  htm: '#7f7f7f'
+  htm: '#7f7f7f',
+  cippsu: '#17becf',
+  cipdll: '#1f77b4',
+  cipdlp: '#ff7f0e',
+  cipjl: '#2ca02c',
+  cippk: '#d62728',
+  cippd: '#9467bd',
+  cippkdkk: '#8c564b',
+  cippju: '#e377c2',
+  cippj: '#7f7f7f',
+  cipsl: '#17becf',
 };
 
 const fetchLayer = async () => {

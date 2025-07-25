@@ -20,7 +20,16 @@ const allowedPublicTables = {
   'admin': 'admin_jkt',
   'aset': 'Aset_drCitata',
   'vcip': 'v_cip',
-  'psu': 'CIP_Bangunan_PSU',
+  'cippsu': 'CIP_Bangunan_PSU',
+  'cipdll': 'CIP_Drainase_Lingkungan_Line',
+  'cipdlp': 'CIP_Drainase_Lingkungan_Point',
+  'cipjl': 'CIP_Jalan_Lingkungan',
+  'cippk': 'CIP_Pencegahan_Kebakaran',
+  'cippd': 'CIP_Pendukung_Dekorasi',
+  'cippkdkk': 'CIP_Pendukung_Keamanan_Dan_Keselamatan_Kawasan',
+  'cippju': 'CIP_Penerangan_Jalan_Umum',
+  'cippj': 'CIP_Penghijauan',
+  'cipsl': 'CIP_Sarpras_Lainnya',
 };
 
 // 🌐 CORS Only For Frontend

@@ -146,7 +146,7 @@ onMounted(() => {
     popupData.value = {
       layerName: selected.layer?.get('title') || '',
       alamat: propsF.alamat || propsF.Alamat || propsF.Kelurahan || '-',
-      keterangan: propsF.keterangan || propsF.deskripsi || propsF.symbology || '-',
+      keterangan: propsF.keterangan || propsF.Keterangan || propsF.deskripsi || propsF.symbology || '-',
       foto: propsF.foto || propsF.image || null
     };
 
