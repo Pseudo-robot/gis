@@ -118,112 +118,177 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue';
+import { fetchLayer } from './fetchLayer';
 
-// Categories and layers data
-const categories = [
+// State
+const activeLayers = ref([]);
+const selectedLayers = ref([]);
+const expandedCategories = ref({});
+const showLayerDialog = ref(false);
+const showConfirmDialog = ref(false);
+const loading = ref(false);
+const error = ref(null);
+
+// Data layer from fetchLayer.js
+const categories = ref([
   {
     id: 'POINT',
     name: 'CIP POINT',
-    items: [
-      { id: 'Point1', name: 'Gapura', color: '#4CAF50' },
-      { id: 'Point2', name: 'Vertikal Garden', color: '#2196F3' },
-      { id: 'Point3', name: 'Speedbump', color: '#FF5722' }
-    ]
+    items: []
   },
   {
     id: 'LINE',
     name: 'CIP LINE',
-    items: [
-      { id: 'Line1', name: 'Jalan', color: '#9C27B0' },
-      { id: 'Line2', name: 'Saluran', color: '#607D8B' },
-      { id: 'Line3', name: 'Pagar Pengaman', color: '#795548' }
-    ]
+    items: []
   },
   {
     id: 'DATA',
     name: 'DATA LAINNYA',
-    items: [
-      { id: 'Data1', name: 'RW Kumuh', color: '#6C24B0' },
-      { id: 'Data2', name: 'RPTRA', color: '#707D9B' }
-    ]
+    items: []
   }
-]
+]);
 
-// State
-const activeLayers = ref([])
-const selectedLayers = ref([])
-const expandedCategories = ref({})
-const showLayerDialog = ref(false)
-const showConfirmDialog = ref(false)
+// Initialization
+onMounted(async () => {
+  await initializeLayers();
+});
 
-// Initialize expanded categories
-categories.forEach(cat => {
-  expandedCategories.value[cat.id] = true
-})
-
-// Methods
-const showAddLayerDialog = () => {
-  selectedLayers.value = activeLayers.value.map(layer => layer.id)
-  showLayerDialog.value = true
+async function initializeLayers() {
+  try {
+    loading.value = true;
+    error.value = null;
+    
+    const [_, overlayGroup] = await fetchLayer();
+    const layers = overlayGroup.getLayers().getArray();
+    
+    // Reset categories
+    categories.value.forEach(cat => {
+      cat.items = [];
+      expandedCategories.value[cat.id] = true;
+    });
+    
+    // Categorize layers
+    layers.forEach(layer => {
+      const title = layer.get('title');
+      const name = layer.get('name') || title.toLowerCase().replace(/\s+/g, '_');
+      const style = layer.getStyle();
+      let color = '#000000';
+      
+      if (style) {
+        const stroke = style.getStroke();
+        if (stroke) color = stroke.getColor();
+        else {
+          const fill = style.getFill();
+          if (fill) color = fill.getColor();
+        }
+      }
+      
+      const layerItem = {
+        id: name,
+        name: title,
+        color,
+        layer: layer,
+        visible: false
+      };
+      
+      // Categorize based on type
+      if (name.includes('point') || name.includes('pt') || name.includes('cippt')) {
+        categories.value[0].items.push(layerItem);
+      } else if (name.includes('line') || name.includes('pl') || name.includes('cipl')) {
+        categories.value[1].items.push(layerItem);
+      } else {
+        categories.value[2].items.push(layerItem);
+      }
+    });
+    
+  } catch (err) {
+    console.error('Error initializing layers:', err);
+    error.value = err.message || 'Failed to load layers';
+  } finally {
+    loading.value = false;
+  }
 }
+
+// UI Methods
+const showAddLayerDialog = () => {
+  selectedLayers.value = activeLayers.value.map(layer => layer.id);
+  showLayerDialog.value = true;
+};
 
 const closeDialog = () => {
-  showLayerDialog.value = false
-}
+  showLayerDialog.value = false;
+};
 
 const toggleCategory = (categoryId) => {
-  expandedCategories.value[categoryId] = !expandedCategories.value[categoryId]
-}
+  expandedCategories.value[categoryId] = !expandedCategories.value[categoryId];
+};
 
+// Layer Selection Methods
 const toggleLayerSelection = (item) => {
-  const index = selectedLayers.value.indexOf(item.id)
+  const index = selectedLayers.value.indexOf(item.id);
   if (index === -1) {
-    selectedLayers.value.push(item.id)
+    selectedLayers.value.push(item.id);
   } else {
-    selectedLayers.value.splice(index, 1)
+    selectedLayers.value.splice(index, 1);
   }
-}
+};
 
 const isSelected = (id) => {
-  return selectedLayers.value.includes(id)
-}
+  return selectedLayers.value.includes(id);
+};
 
+// Layer Management Methods
 const addSelectedLayers = () => {
-  // Add new layers that aren't already active
-  categories.forEach(category => {
+  categories.value.forEach(category => {
     category.items.forEach(item => {
       if (selectedLayers.value.includes(item.id) && 
           !activeLayers.value.some(l => l.id === item.id)) {
+        // Activate the layer in OpenLayers
+        item.layer.setVisible(true);
         activeLayers.value.push({
           ...item,
           visible: true
-        })
+        });
       }
-    })
-  })
+    });
+  });
   
-  closeDialog()
-}
+  closeDialog();
+};
+
+const toggleLayerVisibility = (layer) => {
+  layer.layer.setVisible(layer.visible);
+};
 
 const removeLayer = (id) => {
-  activeLayers.value = activeLayers.value.filter(layer => layer.id !== id)
-}
+  const index = activeLayers.value.findIndex(layer => layer.id === id);
+  if (index !== -1) {
+    // Deactivate the layer in OpenLayers
+    activeLayers.value[index].layer.setVisible(false);
+    activeLayers.value.splice(index, 1);
+  }
+};
 
+// Delete Methods
 const confirmDeleteAll = () => {
   if (activeLayers.value.length > 0) {
-    showConfirmDialog.value = true
+    showConfirmDialog.value = true;
   }
-}
+};
 
 const cancelDelete = () => {
-  showConfirmDialog.value = false
-}
+  showConfirmDialog.value = false;
+};
 
 const deleteAllLayers = () => {
-  activeLayers.value = []
-  showConfirmDialog.value = false
-}
+  // Deactivate all layers in OpenLayers
+  activeLayers.value.forEach(layer => {
+    layer.layer.setVisible(false);
+  });
+  activeLayers.value = [];
+  showConfirmDialog.value = false;
+};
 </script>
 
 <style scoped>
@@ -237,13 +302,16 @@ const deleteAllLayers = () => {
 }
 
 .main-panel {
-  width: 250px;
-  height: 700px; /* tambah ini */
+  width: 300px;
+  height: 550px; /* Fixed height */
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   padding: 16px;
   margin-right: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Ensures no overflow outside the panel */
 }
 
 
@@ -256,7 +324,7 @@ const deleteAllLayers = () => {
 
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 35px;
   margin-bottom: 16px;
 }
 
@@ -415,8 +483,11 @@ input:checked + .slider:before {
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  max-height: 580px; /* Batasi tinggi maksimum popup */
+  overflow-y: auto; /* Tambahkan scroll jika konten melebihi tinggi maksimum */
   display: flex;
   flex-direction: column;
+
 }
 
 .popup-header {
@@ -425,11 +496,19 @@ input:checked + .slider:before {
   align-items: center;
   padding: 16px;
   border-bottom: 1px solid #eee;
+  flex-shrink: 0; /* Pastikan header tidak menyusut */
+
 }
 
 .popup-header h3 {
   font-size: 1.1rem;
   margin: 0;
+}
+
+.popup-content {
+  overflow-y: auto; /* Aktifkan scroll vertikal ketika konten melebihi tinggi */
+  padding: 16px;
+  flex-grow: 1; /* Isi sisa ruang yang tersedia */
 }
 
 .close-btn {
