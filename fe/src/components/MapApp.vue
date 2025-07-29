@@ -1,9 +1,22 @@
 <template>
     <div id="map" class="map"></div>
+    
+
+    
     <div class="tools">
         <button @click="toggleLayerList" id="btn-layer-list" class="btn rounded-circle logo" title="Daftar Data">
             <img v-if="!isLayerListVisible" :src="visibleIcon" alt="Show Layer List" class="icon"/>
             <i v-else class="fas fa-times icon-close"></i>
+        </button>
+        <a href="/peta/example" class="btn rounded-circle logo example-btn" title="Auth Example">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+        </a>
+        <button @click="handleLogout" class="btn rounded-circle logo logout-btn" title="Logout">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
         </button>
     </div>
     <div>
@@ -74,8 +87,14 @@ import layerGroupIcon from '../assets/layers-group.svg';
 import defaultBasemap from '../assets/basemap0.png';
 import FilterSearch from './FilterSearch.vue';
 // import Sidebar from './Sidebar.vue';
+import { useAuthStore } from '../stores/auth';
+import { useRouter } from 'vue-router';
+import { useAuth } from '../composables/useAuth';
 
 const mapInstance = ref(null);
+const authStore = useAuthStore();
+const router = useRouter();
+const { isExternal, isInternal, user } = useAuth();
 const overlayGroups = ref(null);
 const vectorLayers = ref(null);
 const isLayerListVisible = ref(false);
@@ -89,6 +108,11 @@ const toggleLayerList = () => {
 };
 const toggleBasemapList = () => {
     isBasemapListVisible.value = !isBasemapListVisible.value;
+};
+
+const handleLogout = () => {
+    authStore.logout();
+    router.push('/login');
 };
 
 onMounted(async () => {
@@ -180,11 +204,36 @@ onMounted(async () => {
   width: auto;
 }
 
+
+
 .tools {
     position: absolute;
     z-index: 1;
     top: 160px;
     left: 0px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.logout-btn {
+    background-color: #ef4444 !important;
+    color: white;
+}
+
+.logout-btn:hover {
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
+}
+
+.example-btn {
+    background-color: #10b981 !important;
+    color: white;
+}
+
+.example-btn:hover {
+    background-color: #059669 !important;
+    border-color: #059669 !important;
 }
 
 /* Responsif tambahan untuk layar kecil */
