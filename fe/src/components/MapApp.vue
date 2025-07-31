@@ -71,7 +71,7 @@ import Geolocation from './geolocation.vue';
 import { fetchLayer } from './fetchLayer.js'
 
 import layerGroupIcon from '../assets/layers-group.svg';
-import defaultBasemap from '../assets/basemap0.png';
+import defaultBasemap from '../assets/basemap2.png';
 import FilterSearch from './FilterSearch.vue';
 // import Sidebar from './Sidebar.vue';
 

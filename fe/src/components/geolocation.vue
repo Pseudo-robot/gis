@@ -7,10 +7,9 @@
     :title="buttonTitle"
   >
     <span v-if="isLocating" class="spinner"></span>
-    <img v-else src="/svg geolocation.svg" alt="Locate" class="icon" />
+    <img v-else src="/geolocation.svg" alt="Locate" class="icon" />
   </button>
 </template>
-
 
 <script setup>
 import { ref, computed } from 'vue';
@@ -285,20 +284,17 @@ defineExpose({
   position: fixed; /* ganti dari absolute ke fixed */
   top: 105px;
   right: 60px;
-
+  color: #c2c1c0; 
   width: 50px;
   height: 50px;
   padding: 0;
-
   background: white;
   border: 2px solid rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   cursor: pointer;
   transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
 

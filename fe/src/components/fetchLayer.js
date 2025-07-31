@@ -41,7 +41,7 @@ const baseLayerGroup = new LayerGroup({
       title: 'CartoDB Positron',
       type: 'base',
       subtype: 'always-on', // membuat layer ini selalu aktif
-      visible: true,
+      visible: false,
       source: new XYZ({
         url: 'https://{a-c}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
       })
@@ -56,7 +56,7 @@ const baseLayerGroup = new LayerGroup({
       title: 'ESRI Satellite',
       source: new XYZ({ url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' }),
       type: 'base',
-      visible: false
+      visible: true
     }),
     new TileLayer({ // ✅ Citra DKI 2023 (langsung dari GeoServer)
       title: 'Citra DKI 2023',

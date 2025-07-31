@@ -115,6 +115,7 @@ export default {
   background: white;
   border: 2px solid rgba(0, 0, 0, 0.2);
   border-radius: 4px;
+  color: #c2c1c0;
   width: 50px;              /* ✅ lebar tetap */
   height: 50px;             /* ✅ tinggi tetap */
   padding: 6px;

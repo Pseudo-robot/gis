@@ -89,7 +89,7 @@ const navigate = (url) => window.open(url, '_blank');
   border-radius: 9999px;
   font-size: 1.3125rem; /* ~21px */
   cursor: pointer;
-  color: #0f172a;
+  color: #35b4ed;
   background-color: transparent;
   transition: background-color 0.3s ease;
 }
@@ -110,7 +110,7 @@ const navigate = (url) => window.open(url, '_blank');
   border-radius: 9999px;
   font-size: 1.3125rem; /* ~21px */
   cursor: pointer;
-  color: #0f172a;
+  color: #35b4ed;
   background-color: transparent;
   transition: background-color 0.3s ease;
 }

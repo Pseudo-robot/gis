@@ -74,6 +74,7 @@ const closePopup = () => {
   popupOverlay?.setPosition(undefined);
   popupData.value = null;
   isSlideOpen.value = false;
+  highlightSource.clear();
 };
 
 const openSlide = () => {

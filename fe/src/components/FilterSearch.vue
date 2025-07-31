@@ -1,9 +1,7 @@
 <template>
-  <div class="button-filter">
-    <button @click="togglePanel" :class="{ active: !panelCollapsed }">
-      <i class="fas fa-filter"></i> Filter
-    </button>
-  </div>
+  <button class="button-filter" @click="togglePanel" :class="{ active: !panelCollapsed }">
+    <i class="fas fa-search"></i>
+  </button>
 
   <div class="map-container" :class="{ collapsed: panelCollapsed }">
     <div class="filter-panel">
@@ -48,7 +46,7 @@
         <button class="reset-btn" @click="resetFilters">
           Reset Filter
         </button>
-        <button class="apply-btn" @click="applyFilters">
+        <button class="apply-btn" @click="applyFilters" :disabled="!selectedKota">
           Apply Filter
         </button>
       </div>
@@ -57,120 +55,214 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
+<script>
+import { Vector as VectorLayer } from 'ol/layer';
+import { Vector as VectorSource } from 'ol/source';
+import GeoJSON from 'ol/format/GeoJSON';
+import { Style, Stroke, Fill } from 'ol/style';
+import {fromLonLat} from 'ol/proj';
 
-const panelCollapsed = ref(true);
+const apiBase = import.meta.env.VITE_API_BASE;
 
-const sampleData = {
-  kota: [
-    // DKI Jakarta
-    { id: 11, provinsi_id: 1, name: "Jakarta Pusat" },
-    { id: 12, provinsi_id: 1, name: "Jakarta Selatan" },
-    { id: 13, provinsi_id: 1, name: "Jakarta Barat" },
-    { id: 14, provinsi_id: 1, name: "Jakarta Timur" },
-    { id: 15, provinsi_id: 1, name: "Jakarta Utara" },
-  ],
-  kecamatan: [
-    // Jakarta Pusat
-    { id: 111, kota_id: 11, name: "Gambir" },
-    { id: 112, kota_id: 11, name: "Sawah Besar" },
-    // Jakarta Selatan
-    { id: 121, kota_id: 12, name: "Kebayoran Baru" },
-    { id: 122, kota_id: 12, name: "Pasar Minggu" },
-    // Jakarta Barat
-    { id: 131, kota_id: 13, name: "Kebon Jeruk" },
-    { id: 132, kota_id: 13, name: "Kalideres" },
-    // Jakarta Timur
-    { id: 141, kota_id: 14, name: "Cakung" },
-    { id: 142, kota_id: 14, name: "Pulo Gadung" },
-    // Jakarta Utara
-    { id: 151, kota_id: 15, name: "Kalibaru" },
-    { id: 152, kota_id: 15, name: "Rorotan" }
-  ],
-  kelurahan: [
-    // Gambir
-    { id: 1111, kecamatan_id: 111, name: "Gambir", center: [-6.1761, 106.8170] },
-    { id: 1112, kecamatan_id: 111, name: "Kebon Kelapa", center: [-6.1728, 106.8236] },
-    // Sawah Besar
-    { id: 1121, kecamatan_id: 112, name: "Karang Anyar", center: [-6.1528, 106.8318] },
-    { id: 1122, kecamatan_id: 112, name: "Pasar Baru", center: [-6.1608, 106.8324] },
-    // Kebayoran Baru
-    { id: 1211, kecamatan_id: 121, name: "Selong", center: [-6.2439, 106.7958] },
-    { id: 1212, kecamatan_id: 121, name: "Gunung", center: [-6.2403, 106.8024] },
-    // Bandung Kulon
-    { id: 2111, kecamatan_id: 211, name: "Caringin", center: [-6.9219, 107.5688] },
-    { id: 2112, kecamatan_id: 211, name: "Sukaraja", center: [-6.9167, 107.5833] }
-  ]
-};
-let kotaList = [{ id: 11, provinsi_id: 1, name: "Jakarta Pusat" },
-{ id: 12, provinsi_id: 1, name: "Jakarta Selatan" },
-{ id: 13, provinsi_id: 1, name: "Jakarta Barat" },
-{ id: 14, provinsi_id: 1, name: "Jakarta Timur" },
-{ id: 15, provinsi_id: 1, name: "Jakarta Utara" }];
-const kecamatanList = ref([])
-const kelurahanList = ref([]);
-const selectedKota = ref(null);
-const selectedKecamatan = ref(null);
-const selectedKelurahan = ref(null);
+export default {
+  props: ['map'], // map instance dikirim dari parent
+  data() {
+    return {
+      kotaList: [],
+      kecamatanList: [],
+      kelurahanList: [],
 
+      selectedKota: null,
+      selectedKecamatan: null,
+      selectedKelurahan: null,
 
-const loadKecamatan = async () => {
-  if (!selectedKota.value) return;
-  selectedKecamatan.value = null;
-  selectedKelurahan.value = null;
-  kecamatanList.value = [];
-  kelurahanList.value = [];
+      filteredLayer: null,
+      panelCollapsed: true
+    };
+  },
+  mounted() {
+    this.loadKota();
+  },
+  methods: {
+    togglePanel() {
+      this.panelCollapsed = !this.panelCollapsed;
+    },
+    
+    async loadKota() {
+      try {
+        const res = await fetch(`${apiBase}/api/admin/geojson-kota`);
+        const data = await res.json();
+        this.kotaList = data.map((kota, i) => ({
+          id: i + 1,
+          name: kota
+        }));
+      } catch (err) {
+        console.error('Gagal ambil kota:', err);
+      }
+    },
 
-  kecamatanList.value = sampleData.kecamatan.filter(
-    k => k.kota_id === selectedKota.value.id
-  );
-}
+    async loadKecamatan() {
+      this.kecamatanList = [];
+      this.kelurahanList = [];
+      this.selectedKecamatan = null;
+      this.selectedKelurahan = null;
 
-const loadKelurahan = async () => {
-  if (!selectedKecamatan.value) return;
+      if (!this.selectedKota?.name) return;
 
-  selectedKelurahan.value = null;
-  kelurahanList.value = [];
+      try {
+        const res = await fetch(`${apiBase}/api/admin/geojson-kecamatan?kota=${this.selectedKota.name}`);
+        const data = await res.json();
+        this.kecamatanList = data.map((kec, i) => ({
+          id: i + 1,
+          name: kec
+        }));
+      } catch (err) {
+        console.error('Gagal ambil kecamatan:', err);
+      }
+    },
 
-  kelurahanList.value = sampleData.kelurahan.filter(
-    k => k.kecamatan_id === selectedKecamatan.value.id
-  );
-}
+    async loadKelurahan() {
+      this.kelurahanList = [];
+      this.selectedKelurahan = null;
 
-const togglePanel = () => {
-  panelCollapsed.value = !panelCollapsed.value;
-};
+      if (!this.selectedKecamatan?.name) return;
 
-const resetFilters = () => {
-  selectedKota.value = null;
-  selectedKecamatan.value = null;
-  selectedKelurahan.value = null;
-};
+      try {
+        const res = await fetch(`${apiBase}/api/admin/geojson-kelurahan?kota=${this.selectedKota.name}&kecamatan=${this.selectedKecamatan.name}`);
+        const data = await res.json();
+        this.kelurahanList = data.map((kel, i) => ({
+          id: i + 1,
+          name: kel
+        }));
+      } catch (err) {
+        console.error('Gagal ambil kelurahan:', err);
+      }
+    },
 
-const applyFilters = () => {
-   panelCollapsed.value = !panelCollapsed.value;
+    async applyFilters() {
+      if (!this.selectedKota?.name) {
+        console.warn('Kota belum dipilih');
+        return;
+      };
+
+      const params = new URLSearchParams();
+
+      params.append('kota', this.selectedKota?.name || '');
+      if (this.selectedKecamatan?.name) params.append('kecamatan', this.selectedKecamatan.name);
+      if (this.selectedKelurahan?.name) params.append('kelurahan', this.selectedKelurahan.name);
+
+      try {
+        const res = await fetch(`${apiBase}/api/admin/geojson?${params.toString()}`);
+        const geojson = await res.json();
+        this.zoomToLocation(geojson);
+        this.panelCollapsed = true;
+      } catch (err) {
+        console.error('Gagal apply filter:', err);
+      }
+    },
+
+    resetFilters() {
+      this.selectedKota = null;
+      this.selectedKecamatan = null;
+      this.selectedKelurahan = null;
+      this.kecamatanList = [];
+      this.kelurahanList = [];
+
+      if (this.filteredLayer) {
+        this.map.removeLayer(this.filteredLayer);
+        this.filteredLayer = null;
+      }
+
+      this.goToHome();
+    },
+
+      goToHome() {
+      const defaultCenter = fromLonLat([106.8272, -6.1751]); // Jakarta
+      const defaultZoom = 11;
+
+      const view = this.map.getView();
+      view.animate({
+        center: defaultCenter,
+        zoom: defaultZoom,
+        duration: 1000
+      });
+    },
+
+      zoomToLocation(geojsonData) {
+        if (!this.map) return;
+
+        if (!geojsonData || geojsonData.type !== 'FeatureCollection') {
+          console.warn('GeoJSON tidak valid:', geojsonData);
+          return;
+        }
+
+        if (this.filteredLayer) {
+          this.map.removeLayer(this.filteredLayer);
+          this.filteredLayer = null;
+        }
+
+        const source = new VectorSource({
+          features: new GeoJSON().readFeatures(geojsonData, {
+            featureProjection: 'EPSG:3857'
+          })
+        });
+
+        this.filteredLayer = new VectorLayer({
+          source,
+          style: new Style({
+            stroke: new Stroke({ color: 'red', width: 2 }),
+            fill: new Fill({ color: 'rgba(255, 0, 0, 0.1)' })
+          })
+        });
+
+        this.map.addLayer(this.filteredLayer);
+
+        // Gunakan extent dari source (bukan dari geojson.bbox)
+        const extent = source.getExtent();
+
+        // Cegah zoom jika extent tidak valid
+        if (extent && extent[0] !== Infinity) {
+          this.map.getView().fit(extent, {
+            padding: [40, 40, 40, 40],
+            duration: 800
+          });
+        } else {
+          console.warn('Extent tidak valid. Data mungkin kosong.');
+        }
+      }
+  }
 };
 </script>
 
 <style scoped>
 .button-filter {
-  justify-items: flex-end;
-  margin-top: 165px;
   position: absolute;
-  right: 0;
+  top: 105px;
+  right: 180px;
   z-index: 1000;
-  margin-right: 30px;
+  background: white;
+  color: #c2c1c0;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  width: 50px;              /* ✅ lebar tetap */
+  height: 50px;             /* ✅ tinggi tetap */
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
 
-  button {
+  /* button {
     background: white;
     border: 2px solid rgba(0, 0, 0, 0.2);
     border-radius: 3px;
-  }
+  } */
 }
 
 .map-container {
-  width: 30%;
+  width: 15%;
   justify-items: flex-end;
   margin-top: 165px;
   background: white;
