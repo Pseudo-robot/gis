@@ -5,93 +5,61 @@
 
   <div class="map-container" :class="{ collapsed: panelCollapsed }">
     <div class="filter-panel">
-      <div v-if="typeFilterActive === 'null'">
-        <div @click="changeTypeFilterActive('wilayah')" class="filter-panel-wilayah">
-          <span><i class="fas fa-city"></i><b>&nbsp;Filter Wilayah</b></span>
-        </div>
-        <div @click="changeTypeFilterActive('tingkatKumuh')" class="filter-panel-cursor">
-          <span><i class="fas fa-user"></i><b>&nbsp;Filter Tingkat Kumuh</b></span>
-        </div>
-      </div>
-
-
-      <div v-if="typeFilterActive === 'wilayah'">
-        <div class="panel-header">
-          <span><i class="fas fa-arrow-left filter-panel-cursor"
-              @click="changeTypeFilterActive('null')"></i><b>&nbsp;Filter Wilayah</b></span>
-          <!-- <button @click="togglePanel" style="background: none;">
+      <div class="panel-header">
+        <span><b>Filter Wilayah</b></span>
+        <button @click="togglePanel" style="background: none;">
             <i class="fas fa-close"></i>
-          </button> -->
-        </div>
-
-        <div class="filter-group">
-          <h3><i class="fas fa-city"></i> Kota/Kabupaten</h3>
-          <select v-model="selectedKota" @change="loadKecamatan">
-            <option value="">Pilih Kota/Kabupaten</option>
-            <option v-for="kota in kotaList" :key="kota.id" :value="kota">
-              {{ kota.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <h3><i class="fas fa-map-marked-alt"></i> Kecamatan</h3>
-          <select v-model="selectedKecamatan" @change="loadKelurahan" :disabled="!selectedKota">
-            <option value="">Pilih Kecamatan</option>
-            <option v-for="kec in kecamatanList" :key="kec.id" :value="kec">
-              {{ kec.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <h3><i class="fas fa-map-pin"></i> Kelurahan</h3>
-          <select v-model="selectedKelurahan" @change="zoomToLocation" :disabled="!selectedKecamatan">
-            <option value="">Pilih Kelurahan</option>
-            <option v-for="kel in kelurahanList" :key="kel.id" :value="kel">
-              {{ kel.name }}
-            </option>
-          </select>
-        </div>
-
-        <div class="button-reset-apply">
-          <button class="reset-btn" @click="resetFilters">
-            Reset Filter
           </button>
-          <button class="apply-btn" @click="applyFilters" :disabled="!selectedKota">
-            Apply Filter
-          </button>
-        </div>
       </div>
 
-      <div v-if="typeFilterActive === 'tingkatKumuh'">
-        <div class="panel-header">
-          <span><i class="fas fa-arrow-left filter-panel-cursor"
-              @click="changeTypeFilterActive('null')"></i><b>&nbsp;Filter Tingkat Kumuh</b></span>
-          <!-- <button @click="togglePanel" style="background: none;">
-            <i class="fas fa-close"></i>
-          </button> -->
-        </div>
-        <div class="filter-group">
-          <h4><i class="fas fa-user"></i> Tingkat Kumuh</h4>
-          <select v-model="selectedTingkatKumuh" class="filter-tingkat-kumuh">
-            <option value="">Pilih Tingkat Kumuh</option>
-            <option v-for="levelKumuh in tingkatKumuhList" :key="levelKumuh.id" :value="levelKumuh">
-              {{ levelKumuh.name }}
-            </option>
-          </select>
-
-          <div class="button-reset-apply">
-            <button class="reset-btn" @click="resetFiltersTingkatKumuh">
-              Reset Filter
-            </button>
-            <button class="apply-btn" @click="applyFiltersTingkatKumuh" :disabled="!selectedTingkatKumuh">
-              Apply Filter
-            </button>
-          </div>
-        </div>
+      <div class="filter-group">
+        <h3><i class="fas fa-city"></i> Kota/Kabupaten</h3>
+        <select v-model="selectedKota" @change="loadKecamatan">
+          <option value="">Pilih Kota/Kabupaten</option>
+          <option v-for="kota in kotaList" :key="kota.id" :value="kota">
+            {{ kota.name }}
+          </option>
+        </select>
       </div>
 
+      <div class="filter-group">
+        <h3><i class="fas fa-map-marked-alt"></i> Kecamatan</h3>
+        <select v-model="selectedKecamatan" @change="loadKelurahan" :disabled="!selectedKota">
+          <option value="">Pilih Kecamatan</option>
+          <option v-for="kec in kecamatanList" :key="kec.id" :value="kec">
+            {{ kec.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <h3><i class="fas fa-map-pin"></i> Kelurahan</h3>
+        <select v-model="selectedKelurahan" @change="zoomToLocation" :disabled="!selectedKecamatan">
+          <option value="">Pilih Kelurahan</option>
+          <option v-for="kel in kelurahanList" :key="kel.id" :value="kel">
+            {{ kel.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <h3><i class="fas fa-user"></i> Tingkat Kumuh</h3>
+        <select v-model="selectedTingkatKumuh" class="filter-tingkat-kumuh">
+          <option value="">Pilih Tingkat Kumuh</option>
+          <option v-for="levelKumuh in tingkatKumuhList" :key="levelKumuh.id" :value="levelKumuh">
+            {{ levelKumuh.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="button-reset-apply">
+        <button class="reset-btn" @click="resetFilters">
+          Reset Filter
+        </button>
+        <button class="apply-btn" @click="applyFilters" :disabled="!selectedKota">
+          Apply Filter
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -117,7 +85,8 @@ export default {
         { id: 2, kota_id: 11, name: "Berat" },
         { id: 3, kota_id: 11, name: "Sedang" },
         { id: 4, kota_id: 11, name: "Ringan" },
-        { id: 5, kota_id: 11, name: "Sangat Riangan" }],
+        { id: 5, kota_id: 11, name: "Sangat Ringan" }
+      ],
 
       selectedKota: null,
       selectedKecamatan: null,
@@ -137,13 +106,12 @@ export default {
     togglePanel() {
       this.panelCollapsed = !this.panelCollapsed;
       this.typeFilterActive = 'null';
-      console.log('masuk tooglepanel =>', this.panelCollapsed)
     },
 
     changeTypeFilterActive(tipe) {
       this.typeFilterActive = tipe;
     },
-    
+
     async loadKota() {
       try {
         const res = await fetch(`${apiBase}/api/admin/geojson-kota`);
@@ -206,29 +174,10 @@ export default {
       params.append('kota', this.selectedKota?.name || '');
       if (this.selectedKecamatan?.name) params.append('kecamatan', this.selectedKecamatan.name);
       if (this.selectedKelurahan?.name) params.append('kelurahan', this.selectedKelurahan.name);
+      if (this.selectedTingkatKumuh?.name) params.append('tingkatkumuh', this.selectedTingkatKumuh.name);
 
       try {
         const res = await fetch(`${apiBase}/api/admin/geojson?${params.toString()}`);
-        const geojson = await res.json();
-        this.zoomToLocation(geojson);
-        this.panelCollapsed = true;
-      } catch (err) {
-        console.error('Gagal apply filter:', err);
-      }
-    },
-
-    async applyFiltersTingkatKumuh() {
-      if (!this.selectedTingkatKumuh?.name) {
-        console.warn('Tingkat kumuh belum dipilih');
-        return;
-      };
-
-      const params = new URLSearchParams();
-
-      params.append('tingkatkumuh', this.selectedTingkatKumuh?.name || '');
-
-      try {
-        const res = await fetch(`${apiBase}/api/adminkumuh/geojson?${params.toString()}`);
         const geojson = await res.json();
         this.zoomToLocation(geojson);
         this.panelCollapsed = true;
@@ -241,19 +190,9 @@ export default {
       this.selectedKota = null;
       this.selectedKecamatan = null;
       this.selectedKelurahan = null;
+      this.selectedTingkatKumuh = null;
       this.kecamatanList = [];
       this.kelurahanList = [];
-
-      if (this.filteredLayer) {
-        this.map.removeLayer(this.filteredLayer);
-        this.filteredLayer = null;
-      }
-
-      this.goToHome();
-    },
-
-    resetFiltersTingkatKumuh() {
-      this.tingkatKumuhList = [];
 
       if (this.filteredLayer) {
         this.map.removeLayer(this.filteredLayer);
@@ -362,6 +301,7 @@ export default {
 }
 
 .filter-panel {
+  height: 370px;
   width: 100%;
   background: white;
   padding: 1.25rem;
