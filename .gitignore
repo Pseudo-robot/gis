@@ -1,2 +1,63 @@
-node_modules/
+# === OS / Editor ===
+.DS_Store
+Thumbs.db
+._*
+.idea/
+.vscode/*
+!.vscode/extensions.json
 
+# === Node / JS tooling (berlaku untuk semua paket) ===
+**/node_modules/
+**/.cache/
+**/.parcel-cache/
+**/.eslintcache
+**/.stylelintcache
+**/coverage/
+**/dist/
+**/build/
+**/.next/
+**/.nuxt/
+**/.vite/
+**/tsconfig.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === Env & secrets (keep example files) ===
+**/.env
+**/.env.*        # .env.local, .env.development, dll
+!**/.env.example
+
+# === Uploads / runtime artifacts ===
+gis-be/uploads/**
+!gis-be/uploads/.gitkeep
+
+# === SSL keys & certs (JANGAN commit) ===
+# khusus direktori yang ada di repo kamu:
+main-proxy/cert.pem
+main-proxy/key.pem
+proxy-config/ssl/**
+!proxy-config/ssl/.gitkeep
+# pola umum (jaga-jaga ada file serupa di tempat lain)
+**/*.pem
+**/*.key
+**/*.crt
+**/*.p12
+**/*.pfx
+
+# === Misc runtime / tmp ===
+**/logs/
+*.log
+*.log.*
+*.pid
+*.seed
+*.pid.lock
+tmp/
+**/cookies.txt
+
+# === Test snapshots (kalau pakai Jest/Vitest) ===
+**/__snapshots__/
+
+# === IDE history / local junk ===
+.history/

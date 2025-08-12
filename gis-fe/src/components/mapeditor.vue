@@ -182,6 +182,7 @@ let selectedFeature = null;
 onMounted(() => {
   if (!props.map) {
     console.error('Map instance not provided to MapEditor');
+    console.log(props);
     return;
   }
   props.map.addLayer(vectorLayer);

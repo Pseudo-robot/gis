@@ -6,6 +6,7 @@ const pool = require('./db');
 const geoRoutes = require('./routes/geo');
 const batasAdminRoutes = require('./routes/batasAdmin');
 const katalogRoutes = require('./routes/katalog');
+const sukuDinasRoutes = require('./routes/sukuDinas');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use('/api', geoRoutes);
 app.use('/api/admin', batasAdminRoutes);
 app.use('/api/katalog', katalogRoutes);
+app.use('/api/suku-dinas', sukuDinasRoutes);
 
 // Login route
 app.post('/auth', async (req, res) => {

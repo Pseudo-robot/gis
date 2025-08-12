@@ -11,6 +11,9 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+#vite
+vite.config.js
+
 # SSL certificates
 ssl/
 *.pem

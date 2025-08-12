@@ -1,20 +1,22 @@
 <template>
   <div class="tools1">
     <button @click="toggleLayerList" id="btn-layer-list" class="btn rounded-circle logo" title="Daftar Data">
-        <img v-if="!isLayerListVisible" :src="visibleIcon" alt="Show Layer List" class="icon"/>
-        <i v-else class="fas fa-times icon-close"></i>
+      <img v-if="!isLayerListVisible" :src="visibleIcon" alt="Show Layer List" class="icon" />
+      <i v-else class="fas fa-times icon-close"></i>
     </button>
   </div>
+
   <div class="layer-manager" v-if="isLayerListVisible">
     <!-- Main Panel -->
     <div class="main-panel">
       <h2>Katalog Layer</h2>
+
       <div class="action-buttons">
         <button class="add-btn" @click="showAddLayerDialog">
           <i class="fas fa-plus"></i> Tambah Layer
         </button>
-        <button 
-          class="delete-btn" 
+        <button
+          class="delete-btn"
           @click="confirmDeleteAll"
           :disabled="activeLayers.length === 0"
         >
@@ -27,85 +29,137 @@
         <p>Belum ada layer yang ditambahkan</p>
       </div>
 
+      <!-- Grouped by Category -->
       <div v-else class="layer-list">
-        <div 
-          v-for="layer in activeLayers" 
-          :key="layer.id" 
-          class="layer-item"
-          :class="{ 'active': layer.visible }"
-        >
-          <div class="layer-info">
-            <div class="color-swatch" :style="{ backgroundColor: layer.color }"></div>
-            <span class="layer-name">{{ layer.name }}</span>
+        <div v-for="group in groupedActive" :key="group.id" class="group-block">
+          <div class="group-header">
+            <div class="group-title">
+              <span class="group-badge">{{ group.name }}</span>
+              <span class="group-count">{{ group.items.length }}</span>
+            </div>
+            <div class="group-actions">
+              <button class="group-btn" @click.stop="setGroupVisibility(group.id, true)">
+                Tampilkan semua
+              </button>
+              <button class="group-btn" @click.stop="setGroupVisibility(group.id, false)">
+                Sembunyikan semua
+              </button>
+            </div>
           </div>
-          <div class="layer-actions">
-            <label class="toggle-switch">
-              <input 
-                type="checkbox" 
-                v-model="layer.visible"
-                @click.stop
-              >
-              <span class="slider"></span>
-            </label>
-            <button class="remove-btn" @click.stop="removeLayer(layer.id)">
-              <i class="fas fa-times"></i>
-            </button>
+
+          <div class="group-items">
+            <div
+              v-for="layer in group.items"
+              :key="layer.id"
+              class="layer-item"
+              :class="{ active: layer.visible }"
+            >
+              <div class="layer-info">
+                <div class="color-swatch" :style="{ backgroundColor: layer.color }"></div>
+                <span class="layer-name">{{ layer.name }}</span>
+              </div>
+              <div class="layer-actions">
+                <label class="toggle-switch">
+                  <input type="checkbox" v-model="layer.visible" @click.stop />
+                  <span class="slider"></span>
+                </label>
+                <button class="remove-btn" @click.stop="removeLayer(layer.id)">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        </div> <!-- /group-block -->
       </div>
     </div>
 
     <!-- Side Popup -->
     <div v-if="showLayerDialog" class="side-popup">
-      <div class="popup-header">
-        <h3>Pilih Layer</h3>
+      <!-- Header -->
+      <div class="popup-topbar">
+        <h3>Katalog Layer</h3>
         <button class="close-btn" @click="closeDialog">
           <i class="fas fa-times"></i>
         </button>
       </div>
 
-      <div class="category-container">
-        <div 
-          v-for="category in categories" 
-          :key="category.id" 
-          class="category-item"
-        >
-          <div 
-            class="category-header"
-            @click="toggleCategory(category.id)"
-          >
-            <i 
-              class="fas fa-chevron-right arrow-icon"
-              :class="{ rotated: expandedCategories[category.id] }"
-            ></i>
-            <span>{{ category.name }}</span>
-          </div>
-
-          <div 
-            class="layer-options"
-            v-show="expandedCategories[category.id]"
-          >
-            <div 
-              v-for="item in category.items" 
-              :key="item.id"
-              class="layer-option"
-              :class="{ 'selected': isSelected(item.id) }"
-              @click="toggleLayerSelection(item)"
-            >
-              <div class="option-color" :style="{ backgroundColor: item.color }"></div>
-              <span>{{ item.name }}</span>
-              <i 
-                class="fas fa-check check-icon"
-                v-if="isSelected(item.id)"
-              ></i>
-            </div>
-          </div>
-        </div>
+      <!-- Search global -->
+      <div class="popup-search">
+        <i class="fas fa-search"></i>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Cari"
+          aria-label="Cari layer"
+        />
       </div>
 
-      <div class="popup-footer">
-        <button class="cancel-btn" @click="closeDialog">Batal</button>
-        <button class="confirm-btn" @click="addSelectedLayers">Tambahkan</button>
+      <!-- Content: 2 columns -->
+      <div class="popup-body">
+        <!-- Left: filters -->
+        <aside class="left-pane">
+          <!-- Kategori -->
+          <section class="card">
+            <header class="card-header" @click="leftCollapse.kategori = !leftCollapse.kategori">
+              <span>Kategori</span>
+              <i class="fas" :class="leftCollapse.kategori ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+            </header>
+            <div class="card-body" v-show="leftCollapse.kategori">
+              <ul class="checklist">
+                <li v-for="cat in katalogCategories" :key="cat.id">
+                  <label class="checkbox-row">
+                    <input type="checkbox" :value="cat.id" v-model="selectedCategoryFilters" />
+                    <span>{{ cat.name }}</span>
+                  </label>
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- SKPD Pelaksana -->
+          <section class="card">
+            <header class="card-header" @click="leftCollapse.skpd = !leftCollapse.skpd">
+              <span>SKPD Pelaksana</span>
+              <i class="fas" :class="leftCollapse.skpd ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+            </header>
+            <div class="card-body" v-show="leftCollapse.skpd">
+              <div class="mini-search">
+                <input v-model="skpdQuery" type="text" placeholder="Cari SKPD" aria-label="Cari SKPD" />
+              </div>
+              <ul class="checklist">
+                <li v-for="skpd in filteredSkpd" :key="skpd.id">
+                  <label class="checkbox-row">
+                    <input type="checkbox" :value="skpd.id" v-model="selectedSkpd" />
+                    <span>{{ skpd.name }}</span>
+                  </label>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </aside>
+
+        <!-- Right: items with toggles (live sync) -->
+        <main class="right-pane">
+          <div class="items-grid">
+            <div
+              v-for="item in filteredItems"
+              :key="item.id"
+              class="item-row"
+              :class="{ selected: isSelected(item.id) }"
+              @click="toggleLayerSelection(item)"
+            >
+              <label class="switch">
+                <input
+                  type="checkbox"
+                  :checked="isSelected(item.id)"
+                  @change.stop="toggleLayerSelection(item)"
+                />
+                <span class="slider"></span>
+              </label>
+              <span class="item-name">{{ item.name }}</span>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
 
@@ -124,107 +178,143 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import layerGroupIcon from '../assets/layers-group.svg' // Pastikan path benar
+import { ref, watch, computed } from 'vue'
+import layerGroupIcon from '../assets/layers-group.svg'
 
-// State
+/* ===== State utama ===== */
 const isLayerListVisible = ref(false)
-const activeLayers = ref([])
-const selectedLayers = ref([])
-const expandedCategories = ref({})
+const activeLayers = ref([])      // daftar layer aktif (sinkron ke main-panel)
 const showLayerDialog = ref(false)
 const showConfirmDialog = ref(false)
 const visibleIcon = layerGroupIcon
 
-// Kategori dan item layer
-const categories = [
+/* ===== Dataset katalog ===== */
+const katalogCategories = [
   {
-    id: 'POINT',
-    name: 'CIP POINT',
+    id: 'CAP',
+    name: 'CAP',
     items: [
-      { id: 'Point1', name: 'Gapura', color: '#4CAF50' },
-      { id: 'Point2', name: 'Vertikal Garden', color: '#2196F3' },
-      { id: 'Point3', name: 'Speedbump', color: '#FF5722' }
-    ]
+      { id: 'CAP_Apotek', name: 'Apotek', color: '#2E86DE' },
+      { id: 'CAP_BankSampah', name: 'Bank Sampah', color: '#17A589' },
+      { id: 'CAP_BatasAdmKab', name: 'Batas Administrasi Kabupaten/Kota', color: '#6C3483' },
+    ],
   },
   {
-    id: 'LINE',
-    name: 'CIP LINE',
+    id: 'CIP',
+    name: 'CIP',
     items: [
-      { id: 'Line1', name: 'Jalan', color: '#9C27B0' },
-      { id: 'Line2', name: 'Saluran', color: '#607D8B' },
-      { id: 'Line3', name: 'Pagar Pengaman', color: '#795548' }
-    ]
+      { id: 'CIP_Jalan', name: 'Jalan', color: '#9C27B0' },
+      { id: 'CIP_Apotek', name: 'Apotek', color: '#2E86DE'},
+      { id: 'CIP_Saluran', name: 'Saluran', color: '#607D8B' },
+      { id: 'CIP_Pagar', name: 'Pagar Pengaman', color: '#795548' },
+    ],
   },
   {
-    id: 'DATA',
-    name: 'DATA LAINNYA',
+    id: 'LAIN',
+    name: 'Lainnya',
     items: [
-      { id: 'Data1', name: 'RW Kumuh', color: '#6C24B0' },
-      { id: 'Data2', name: 'RPTRA', color: '#707D9B' }
-    ]
-  }
+      { id: 'LAIN_RPTRA', name: 'RPTRA', color: '#1ABC9C' },
+      { id: 'LAIN_RWKumuh', name: 'RW Kumuh', color: '#D35400' },
+    ],
+  },
 ]
 
-// Expand semua kategori saat inisialisasi
-categories.forEach(cat => {
-  expandedCategories.value[cat.id] = true
+/* ===== SKPD (dummy filter) ===== */
+const skpdList = [
+  { id: 'SUDIN_JAKBAR', name: 'Sudin Jakarta Barat' },
+  { id: 'SUDIN_JAKTIM', name: 'Sudin Jakarta Timur' },
+  { id: 'SUDIN_JAKTENG', name: 'Sudin Jakarta Tengah' },
+  { id: 'SUDIN_JAKUT', name: 'Sudin Jakarta Utara' },
+  { id: 'SUDIN_JAKSEL', name: 'Sudin Jakarta Selatan' },
+  { id: 'SUDIN_PULAUSERIBU', name: 'Sudin Kepulauan seribu' },
+]
+
+/* ===== UI & Filters ===== */
+const searchQuery = ref('')
+const skpdQuery = ref('')
+
+// DEFAULT: kategori kosong = tampilkan semua data
+const selectedCategoryFilters = ref([])
+
+const selectedSkpd = ref([]) // belum dipakai untuk filter item (siap kalau data item punya atribut skpd)
+const leftCollapse = ref({ kategori: true, skpd: true })
+
+/* ===== Derived ===== */
+const allItems = computed(() =>
+  katalogCategories.flatMap(cat => cat.items.map(it => ({ ...it, category: cat.id })))
+)
+
+const filteredSkpd = computed(() => {
+  const q = skpdQuery.value.trim().toLowerCase()
+  if (!q) return skpdList
+  return skpdList.filter(s => s.name.toLowerCase().includes(q))
 })
 
-// Toggle visibility daftar layer
-const toggleLayerList = () => {
-  isLayerListVisible.value = !isLayerListVisible.value
-}
+const filteredItems = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase()
+  const catSel = selectedCategoryFilters.value
+  return allItems.value.filter(it => {
+    const matchText = !q || it.name.toLowerCase().includes(q)
+    const matchCat  = catSel.length === 0 || catSel.includes(it.category)
+    return matchText && matchCat
+  })
+})
 
-// Buka dialog tambah layer
-const showAddLayerDialog = () => {
-  selectedLayers.value = activeLayers.value.map(layer => layer.id)
-  showLayerDialog.value = true
+/* ===== Helpers ===== */
+const buildOrderMap = () => {
+  const map = new Map()
+  katalogCategories.forEach((cat, ci) => {
+    cat.items.forEach((it, ii) => map.set(it.id, ci * 100 + ii))
+  })
+  return map
 }
+const orderMap = buildOrderMap()
 
-const closeDialog = () => {
-  showLayerDialog.value = false
-}
+/* ===== Grouped Active Layers ===== */
+const groupedActive = computed(() => {
+  // urutan grup mengikuti katalogCategories
+  const groups = katalogCategories.map(cat => ({
+    id: cat.id,
+    name: cat.name,
+    items: []
+  }))
 
-const toggleCategory = (categoryId) => {
-  expandedCategories.value[categoryId] = !expandedCategories.value[categoryId]
-}
+  const indexById = Object.fromEntries(groups.map((g, i) => [g.id, i]))
+
+  activeLayers.value.forEach(l => {
+    const idx = indexById[l.category]
+    if (idx !== undefined) groups[idx].items.push(l)
+  })
+
+  // urutkan item dalam grup pakai orderMap
+  groups.forEach(g => {
+    g.items.sort(
+      (a, b) => (orderMap.get(a.id) ?? 9999) - (orderMap.get(b.id) ?? 9999)
+    )
+  })
+
+  // tampilkan hanya grup yang punya item
+  return groups.filter(g => g.items.length > 0)
+})
+
+/* ===== Actions ===== */
+const toggleLayerList = () => { isLayerListVisible.value = !isLayerListVisible.value }
+const showAddLayerDialog = () => { showLayerDialog.value = true }
+const closeDialog = () => { showLayerDialog.value = false }
+
+const isSelected = (id) => activeLayers.value.some(l => l.id === id)
 
 const toggleLayerSelection = (item) => {
-  const index = selectedLayers.value.indexOf(item.id)
-  if (index === -1) {
-    selectedLayers.value.push(item.id)
+  const exists = activeLayers.value.find(l => l.id === item.id)
+  if (exists) {
+    // OFF: hapus dari activeLayers
+    activeLayers.value = activeLayers.value.filter(l => l.id !== item.id)
   } else {
-    selectedLayers.value.splice(index, 1)
+    // ON: tambah ke activeLayers (default visible = true)
+    activeLayers.value.push({ ...item, visible: true })
   }
-}
-
-const isSelected = (id) => selectedLayers.value.includes(id)
-
-const addSelectedLayers = () => {
-  categories.forEach(category => {
-    category.items.forEach(item => {
-      if (selectedLayers.value.includes(item.id) &&
-          !activeLayers.value.some(l => l.id === item.id)) {
-        activeLayers.value.push({ ...item, visible: true })
-      }
-    })
-  })
-
-  // Sort berdasarkan urutan kategori
-  activeLayers.value.sort((a, b) => {
-    const getOrder = (id) => {
-      for (const category of categories) {
-        for (let i = 0; i < category.items.length; i++) {
-          if (category.items[i].id === id) return i + categories.indexOf(category) * 100
-        }
-      }
-      return 9999
-    }
-    return getOrder(a.id) - getOrder(b.id)
-  })
-
-  closeDialog()
+  // urutkan
+  activeLayers.value.sort((a, b) => (orderMap.get(a.id) ?? 9999) - (orderMap.get(b.id) ?? 9999))
 }
 
 const removeLayer = (id) => {
@@ -232,65 +322,55 @@ const removeLayer = (id) => {
 }
 
 const confirmDeleteAll = () => {
-  if (activeLayers.value.length > 0) {
-    showConfirmDialog.value = true
-  }
+  if (activeLayers.value.length > 0) showConfirmDialog.value = true
 }
-
-const cancelDelete = () => {
-  showConfirmDialog.value = false
-}
-
+const cancelDelete = () => { showConfirmDialog.value = false }
 const deleteAllLayers = () => {
   activeLayers.value = []
   showConfirmDialog.value = false
 }
 
-// OPTIONAL: integrasi dengan OpenLayers bisa ditambahkan di watch ini
-watch(
-  activeLayers,
-  (layers) => {
-    layers.forEach(layer => {
-      // Integrasi OL: show/hide based on layer.visible
-    })
-  },
-  { deep: true }
-)
+/* ==== Show/Hide semua per kategori ==== */
+const setGroupVisibility = (groupId, visible) => {
+  activeLayers.value = activeLayers.value.map(l =>
+    l.category === groupId ? { ...l, visible } : l
+  )
+}
+
+/* ===== Integrasi ke OpenLayers di sini ===== */
+watch(activeLayers, (layers) => {
+  // contoh:
+  // layers.forEach(l => toggleOLLayer(l.id, l.visible))
+}, { deep: true })
 </script>
 
 <style scoped>
 .layer-manager {
   position: absolute;
-  top: 180px;
-  left: 80px;
+  top: 105px;
+  left: 70px;
   display: flex;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   z-index: 1000;
 }
 
+/* Panel kiri daftar activeLayers */
 .main-panel {
   width: 250px;
-  height: 700px; /* tambah ini */
+  height: 550px;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  padding: 16px;
+  padding: 0 16px 16px;
   margin-right: 10px;
 }
-
-
 .main-panel h2 {
   font-size: 1.2rem;
   margin-bottom: 16px;
   color: #333;
-  text-align: center; /* Add this line to center the text */
+  text-align: center;
 }
-
-.action-buttons {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
+.action-buttons { display: flex; gap: 8px; margin-bottom: 16px; }
 
 button {
   padding: 8px 12px;
@@ -303,390 +383,185 @@ button {
   font-size: 0.9rem;
   transition: all 0.2s;
 }
+.add-btn { background: #4CAF50; color: #fff; }
+.add-btn:hover { background: #3e8e41; }
+.delete-btn { background: #f44336; color: #fff; }
+.delete-btn:hover { background: #d32f2f; }
+.delete-btn:disabled { background: #ccc; cursor: not-allowed; }
 
-.add-btn {
-  background: #4CAF50;
-  color: white;
-}
+.empty-state { padding: 20px; text-align: center; color: #666; font-size: 0.9rem; }
+.empty-state i { font-size: 2rem; margin-bottom: 8px; color: #ddd; }
 
-.add-btn:hover {
-  background: #3e8e41;
-}
-
-.delete-btn {
-  background: #f44336;
-  color: white;
-}
-
-.delete-btn:hover {
-  background: #d32f2f;
-}
-
-.delete-btn:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
-}
-
-.empty-state {
-  padding: 20px;
-  text-align: center;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.empty-state i {
-  font-size: 2rem;
-  margin-bottom: 8px;
-  color: #ddd;
-}
-
-.layer-list {
-  max-height: 500px;
-  overflow-y: auto;
-}
-
+.layer-list { max-height: 420px; overflow-y: auto; }
 .layer-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  margin-bottom: 8px;
-  background: #f9f9f9;
-  border-radius: 4px;
-  border: 1px solid #eee;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px; margin-bottom: 8px; background: #f9f9f9;
+  border-radius: 4px; border: 1px solid #eee;
+}
+.layer-item.active { border-color: #2196F3; background: #e3f2fd; }
+.layer-info { display: flex; align-items: center; gap: 10px; }
+.color-swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); }
+.layer-name { font-size: 0.9rem; }
+.layer-actions { display: flex; align-items: center; gap: 8px; }
+.toggle-switch { position: relative; width: 40px; height: 20px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; inset: 0; background: #ccc; transition: .4s; border-radius: 20px; }
+.slider:before { content: ""; position: absolute; height: 16px; width: 16px; left: 2px; bottom: 2px; background: #fff; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background: #2196F3; }
+input:checked + .slider:before { transform: translateX(20px); }
+.remove-btn { background: none; border: none; color: #999; cursor: pointer; padding: 4px; }
+.remove-btn:hover { color: #f44336; }
+
+/* Box sizing global biar height konsisten */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Group header */
+.group-block { margin-bottom: 12px; }
+.group-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 8px; margin: 6px 0 8px;
+  background: #f1f7ff; border: 1px solid #e3f0ff; border-radius: 6px;
+}
+.group-title { display: flex; align-items: center; gap: 8px; font-weight: 600; color: #2a437a; }
+.group-badge { letter-spacing: .2px; }
+.group-count {
+  font-size: 12px; padding: 2px 8px; border-radius: 12px;
+  background: #e8f0ff; border: 1px solid #d7e6ff;
+}
+.group-actions { display: flex; gap: 6px; }
+.group-btn {
+  background: #ffffff; border: 1px solid #d7e6ff; color: #2a437a;
+  padding: 4px 8px; border-radius: 6px; font-size: 12px;
+}
+.group-btn:hover { background: #eef5ff; }
+
+/* Popup utama */
+.side-popup {
+  width: 860px;
+  height: 550px;
+  background: #fff;
+  border-radius: 12px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #E6ECF5;
 }
 
-.layer-item.active {
-  border-color: #2196F3;
-  background: #e3f2fd;
+/* Header biru */
+.popup-topbar {
+  display: flex; align-items: center; justify-content: center;
+  background: #35b4ed; color: #fff; height: 56px; position: relative;
+}
+.popup-topbar h3 { margin: 0; font-size: 20px; font-weight: 600; }
+.popup-topbar .close-btn {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: transparent; border: none; color: #fff; font-size: 18px; cursor: pointer;
 }
 
-.layer-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* Search */
+.popup-search {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid #EEF2F7;
+}
+.popup-search i { opacity: 0.6; }
+.popup-search input {
+  width: 100%; height: 34px; border-radius: 20px;
+  border: 1px solid #E0E6EF; padding: 0 12px; outline: none;
 }
 
-.color-swatch {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  border: 1px solid rgba(0,0,0,0.1);
+/* Body 2 kolom */
+.popup-body {
+  display: grid; grid-template-columns: 280px 1fr; gap: 16px;
+  padding: 2px; background: #F7F9FC; flex: 1; overflow: hidden;
+  min-height: 0; /* penting untuk overflow anak */
 }
 
-.layer-name {
+/* Left pane */
+.left-pane {
+  display: flex; flex-direction: column; gap: 8px;
+  overflow: hidden; padding: 0; width: 100%; margin: 0;
+  min-height: 0;
+}
+.card {
+  background: #fff; border-radius: 8px; border: 1px solid #E6ECF5;
+  display: flex; flex-direction: column; width: 100%;
+  overflow: hidden; margin: 0;
+}
+.card-header {
+  background: #35b4ed; color: #fff; padding: 2px 4px; font-weight: 600;
+  border-radius: 8px; width: 100%; display: flex; align-items: stretch; justify-content: space-between;
+  cursor: pointer; position: sticky; top: 0; z-index: 1;
   font-size: 0.9rem;
 }
-
-.layer-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.card-body { padding: 4px 6px; overflow: auto; min-height: 0; }
+.mini-search { margin-bottom: 4px; }
+.mini-search input {
+  width: 100%; height: 28px; border-radius: 14px;
+  border: 1px solid #E0E6EF; padding: 0 10px; outline: none; font-size: 0.85rem;
 }
+.checklist { list-style: none; margin: 0; padding: 0; }
+.checkbox-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 0.9rem; }
 
-.toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 20px;
+/* Right pane */
+.right-pane {
+  background: #fff; border-radius: 12px; border: 1px solid #E6ECF5;
+  padding: 12px; overflow: auto; min-height: 0;
 }
+.items-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 24px; row-gap: 10px; }
+.item-row { display: flex; align-items: center; gap: 10px; min-height: 32px; border-radius: 8px; padding: 4px 8px; }
+.item-row.selected { background: #F0F6FF; }
+.item-name { font-weight: 600; }
 
-.toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+/* Switch */
+.switch { position: relative; width: 42px; height: 22px; display: inline-block; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .slider { position: absolute; inset: 0; background: #D7DFEA; border-radius: 22px; transition: .2s; }
+.switch .slider:before {
+  content: ""; position: absolute; left: 2px; top: 2px; width: 18px; height: 18px;
+  background: #fff; border-radius: 50%; transition: .2s;
 }
+.switch input:checked + .slider { background: #35b4ed; }
+.switch input:checked + .slider:before { transform: translateX(20px); }
 
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 20px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:checked + .slider:before {
-  transform: translateX(20px);
-}
-
-.remove-btn {
-  background: none;
-  border: none;
-  color: #999;
-  cursor: pointer;
-  padding: 4px;
-}
-
-.remove-btn:hover {
-  color: #f44336;
-}
-
-/* Side Popup Styles */
-.side-popup {
-  width: 300px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-.popup-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #eee;
-}
-
-.popup-header h3 {
-  font-size: 1.1rem;
-  margin: 0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #666;
-  font-size: 1rem;
-}
-
-.close-btn:hover {
-  color: #333;
-}
-
-.category-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 16px;
-}
-
-.category-item {
-  margin-bottom: 12px;
-}
-
-.category-header {
-  display: flex;
-  align-items: center;
-  padding: 8px 0;
-  cursor: pointer;
-  font-weight: 500;
-  color: #444;
-}
-
-.arrow-icon {
-  font-size: 0.8rem;
-  margin-right: 8px;
-  transition: transform 0.2s;
-}
-
-.arrow-icon.rotated {
-  transform: rotate(90deg);
-}
-
-.layer-options {
-  margin-left: 16px;
-  border-left: 2px solid #eee;
-  padding-left: 10px;
-}
-
-.layer-option {
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  margin-bottom: 4px;
-  border-radius: 4px;
-  cursor: pointer;
-  position: relative;
-}
-
-.layer-option:hover {
-  background: #f5f5f5;
-}
-
-.layer-option.selected {
-  background: #e3f2fd;
-}
-
-.option-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  margin-right: 8px;
-  border: 1px solid rgba(0,0,0,0.1);
-}
-
-.check-icon {
-  margin-left: auto;
-  color: #2196F3;
-  font-size: 0.8rem;
-}
-
-.popup-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 16px;
-  border-top: 1px solid #eee;
-}
-
-.cancel-btn {
-  background: #f1f1f1;
-  color: #333;
-}
-
-.cancel-btn:hover {
-  background: #e0e0e0;
-}
-
-.confirm-btn {
-  background: #2196F3;
-  color: white;
-}
-
-.confirm-btn:hover {
-  background: #0b7dda;
-}
-
-/* Confirmation Dialog */
+/* Overlay konfirmasi */
 .dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
-
 .confirmation-dialog {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  width: 300px;
+  background: #fff; border-radius: 8px; padding: 20px; width: 300px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
-
-.confirmation-dialog h3 {
-  margin-top: 0;
-  font-size: 1.1rem;
-}
-
-.confirmation-dialog p {
-  margin-bottom: 20px;
-  color: #666;
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
+.confirmation-dialog h3 { margin-top: 0; font-size: 1.1rem; }
+.confirmation-dialog p { margin-bottom: 20px; color: #666; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
 /* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-.btn.logo,
-.btn.logo:active:focus {
+/* Tombol trigger */
+.btn.logo, .btn.logo:active:focus {
   background-color: white;
   margin-left: 10px;
-  width: 10vw;
-  height: 10vw;
-  max-width: 50px;
-  max-height: 50px;
-  border-radius: 8px;
-  border: 2px solid transparent;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
+  width: 10vw; height: 10vw; max-width: 50px; max-height: 50px;
+  border-radius: 8px; border: 2px solid transparent;
+  display: flex; justify-content: center; align-items: center;
+  box-shadow: 5px 5px 5px rgba(0,0,0,0.1);
 }
+.btn.logo:hover { background-color: white; border-color: slateblue; transition: all 500ms; }
+.icon { height: 4vw; max-height: 30px; width: auto; }
+.tools1 { position: absolute; z-index: 1; top: 105px; left: 0px; }
 
-.btn.logo:hover {
-  background-color: white;
-  border-color: slateblue;
-  transition: all 500ms;
-}
-
-.icon {
-  height: 4vw;
-  max-height: 30px;
-  width: auto;
-}
-
-.tools1 {
-    position: absolute;
-    z-index: 1;
-    top: 160px;
-    left: 0px;
-}
-
-/* Responsif tambahan untuk layar kecil */
+/* Responsif */
 @media (max-width: 768px) {
-  .btn.logo {
-    width: 12vw;
-    height: 12vw;
-  }
-
-  .icon {
-    height: 5vw;
-  }
-
-  .tools1 {
-    top: 22vh;
-    left: 2vw;
-  }
-
-  
+  .btn.logo { width: 12vw; height: 12vw; }
+  .icon { height: 5vw; }
+  .tools1 { top: 22vh; left: 2vw; }
 }
-
 @media (max-width: 480px) {
-  .btn.logo {
-    width: 14vw;
-    height: 14vw;
-  }
-
-  .icon {
-    height: 6vw;
-  }
+  .btn.logo { width: 14vw; height: 14vw; }
+  .icon { height: 6vw; }
 }
 </style>

@@ -60,8 +60,8 @@ onMounted(() => {
 }
 
 .myButtonDiv {
-  top: 100px;
-  left: 10px;
+  top: 105px;
+  right: 240px;
   position: absolute;
 }
 </style>
